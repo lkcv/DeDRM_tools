@@ -368,7 +368,7 @@ class KoboLibrary(object):
                     self.kobodir = os.path.join(self.kobodir, "Kobo", "Kobo Desktop Edition")
                 elif sys.platform.startswith('darwin'):
                     self.kobodir = os.path.join(os.environ['HOME'], "Library", "Application Support", "Kobo", "Kobo Desktop Edition")
-                elif sys.platform.startswith('linux'):
+             elif sys.platform.startswith('linux'):
 
                     #sets ~/.config/calibre as the location to store the kobodir location info file and creates this directory if necessary
                     kobodir_cache_dir = os.path.join(os.environ['HOME'], ".config", "calibre")
@@ -379,21 +379,19 @@ class KoboLibrary(object):
                     kobodir_cache_file = str(kobodir_cache_dir) + "/" + "kobo location"
                     
                     """if the above file does not exist, recursively searches from the root
-                    of the filesystem until kobodir is found and stores the location of kobodir
-                    in that file so this loop can be skipped in the future"""
-                    original_stdout = sys.stdout
+                    of the user's home directory until kobodir is found and stores the location
+                    of kobodir in that file so this loop can be skipped in the future"""
                     if not os.path.isfile(kobodir_cache_file):
-                        for root, dirs, files in os.walk('/'):
+                        for root, dirs, files in os.walk(os.environ['HOME']):
                             for file in files:
                                 if file == 'Kobo.sqlite':
                                     kobo_linux_path = str(root)
-                                    with open(kobodir_cache_file, 'w') as f:
-                                        sys.stdout = f
-                                        print(kobo_linux_path, end='')
-                                        sys.stdout = original_stdout
+                                    f = open(kobodir_cache_file, 'w')
+                                    f.write(kobo_linux_path)
+                                    f.close()
 
-                    f = open(kobodir_cache_file, 'r' )
-                    self.kobodir = f.read()
+                    kobocache = open(kobodir_cache_file, 'r' )
+                    self.kobodir = kobocache.read()
 
             # desktop versions use Kobo.sqlite
             kobodb = os.path.join(self.kobodir, "Kobo.sqlite")
